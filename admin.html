@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <!-- منع الفهرسة -->
+  <meta name="robots" content="noindex,nofollow">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>مستشفى ريسبكت — التأمينات (إدارة)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0b0f14;--card:#0f151d;--muted:#92a0b3;--text:#e8eef6;--brand:#7a6bff;--accent:#ff6b6b;--ok:#63e6a5;--border:1px solid rgba(255,255,255,.08)}
+    body{margin:0;background:#0a0f14;color:var(--text);font-family:"Cairo",sans-serif}
+    .container{width:min(1180px,93%);margin:auto}
+    nav{position:sticky;top:0;z-index:30;background:#11171f;padding:12px 0;border-bottom:var(--border)}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800}
+    .brand span.logo{width:36px;height:36px;border-radius:10px;display:inline-block;background:center/cover no-repeat url('RTHospital.png');margin-left:8px}
+    .search{flex:1;display:flex;gap:8px;align-items:center;background:#121a25;border:var(--border);border-radius:12px;padding:8px 12px;margin:0 16px}
+    .search input{all:unset;flex:1;color:var(--text)}
+    .nav-actions{display:flex;gap:8px}
+    .btn{padding:10px 12px;border-radius:12px;border:var(--border);background:#1b2430;color:var(--text);font-weight:700;cursor:pointer}
+    .btn.primary{background:#211b48}
+    .btn.warn{background:#30191c}
+    .filters{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+    .chip{padding:8px 12px;border-radius:999px;border:var(--border);background:#121a25;color:var(--muted);cursor:pointer}
+    .chip[aria-pressed="true"]{background:var(--text);color:#0b0f14;border-color:transparent}
+    .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+    .card{background:var(--card);border:var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;position:relative}
+    .media{background:#0a0f14;display:grid;place-items:center}
+    .media img{width:100%;max-height:200px;object-fit:contain}
+    .content{padding:10px 12px;display:grid;gap:4px}
+    .title{font-weight:800;font-size:15px}
+    .line{color:var(--muted);font-size:12px;display:flex;justify-content:space-between}
+    .status{margin-top:2px;font-size:12px}
+    .badge{position:absolute;top:10px;left:10px;padding:6px 10px;border-radius:999px;font-size:12px;border:var(--border)}
+    .badge.expired{background:rgba(255,107,107,.16);color:var(--accent)}
+    .badge.active{background:rgba(99,230,165,.16);color:var(--ok)}
+    .category{position:absolute;top:10px;right:10px;padding:6px 10px;border-radius:999px;font-size:12px;background:rgba(255,255,255,.06);border:var(--border)}
+    .actions{display:flex;gap:8px;padding:8px 12px;border-top:var(--border);background:#0f151d}
+    .iconbtn{width:32px;height:32px;display:grid;place-items:center;border-radius:8px;border:var(--border);background:#141c28;cursor:pointer}
+    .iconbtn.danger{background:#311c1f}
+    .hidden{display:none!important}
+    footer{text-align:center;padding:20px 0;color:var(--muted)}
+    dialog{border:none;border-radius:16px;background:#0f141d;color:var(--text);width:min(480px,94%)}
+    dialog::backdrop{background:rgba(0,0,0,.55)}
+    form{display:grid;gap:12px;padding:18px}
+    .form-title{font-weight:800;margin:0}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    label{font-size:13px;font-weight:700}
+    input,select{width:100%;padding:8px 10px;border-radius:10px;border:var(--border);background:#101722;color:var(--text)}
+    .preview{display:flex;gap:12px;align-items:center;border:1px dashed rgba(255,255,255,.12);border-radius:12px;padding:10px}
+    .preview.drag{background:rgba(255,255,255,.04)}
+    .preview img{width:96px;height:96px;border-radius:10px;object-fit:cover;border:var(--border);margin-inline-start:8px;flex:0 0 96px}
+    .preview-controls{flex:1;min-width:0;display:grid;gap:8px}
+    .preview-controls input[type="file"]{width:100%;max-width:100%;box-sizing:border-box;direction:ltr}
+    .preview-controls .hint{font-size:12px;color:var(--muted);line-height:1.5}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="container nav-inner">
+      <div class="brand"><span class="logo"></span><span>مستشفى ريسبكت</span></div>
+      <div class="search"><input id="searchInput" placeholder="بحث بالاسم أو رقم الهوية" /></div>
+      <div class="nav-actions">
+        <button class="btn primary" id="addBtn">إضافة</button>
+        <button class="btn" id="editModeBtn">تعديل</button>
+        <button class="btn warn" id="deleteModeBtn">حذف</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="container">
+    <div class="filters">
+      <button class="chip" data-cat="all" aria-pressed="true">الكل</button>
+      <button class="chip" data-cat="فضي">فضي</button>
+      <button class="chip" data-cat="ذهبي">ذهبي</button>
+      <button class="chip" data-cat="بلاتيني">بلاتيني</button>
+      <button class="chip" data-cat="expired">منتهي</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="grid" id="cards"></div>
+  </main>
+
+  <footer>© <span id="year"></span> مستشفى ريسبكت</footer>
+
+  <dialog id="formDialog">
+    <form id="personForm">
+      <h3 class="form-title">بيانات التأمين</h3>
+      <input type="hidden" id="editId" />
+      <div class="preview" id="dropZone" title="اسحب وأفلِت صورة هنا أو الصقها بـ Ctrl+V">
+        <img id="photoPreview" alt="معاينة"/>
+        <div class="preview-controls">
+          <label>الصورة</label>
+          <input type="file" id="photo" accept="image/*" />
+          <div class="hint">تقدر تسحب-وتفلت الصورة هنا، أو تضغط <b>Ctrl+V</b> للصق صورة.</div>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div>
+          <label>الاسم</label>
+          <input type="text" id="name" required />
+        </div>
+        <div>
+          <label>رقم الهوية</label>
+          <input type="text" id="nid" required />
+        </div>
+      </div>
+      <div class="row2">
+        <div>
+          <label>الفئة</label>
+          <select id="category" required>
+            <option value="فضي">فضي</option>
+            <option value="ذهبي">ذهبي</option>
+            <option value="بلاتيني">بلاتيني</option>
+          </select>
+        </div>
+        <div>
+          <label>تاريخ الانتهاء</label>
+          <input type="date" id="expiry" required />
+        </div>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="btn" id="cancelBtn">إلغاء</button>
+        <button type="submit" class="btn primary">حفظ</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Supabase (إدارة) -->
+  <script type="module">
+    const SUPABASE_URL = "https://piexwsbnbyfqkylqykpi.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpZXh3c2JuYnlmcWt5bHF5a3BpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5MDk4MDAsImV4cCI6MjA3NDQ4NTgwMH0.BDYZ1ZAuhLOg7WTUiAWsedNuwRVKfiK-LpUbRsnic3Q";
+    const ADMIN_EMAIL = "belmonster691@gmail.com"; // بريد ثابت، لن يُطلب من المستخدم
+
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const cards=document.getElementById('cards');
+    const searchInput=document.getElementById('searchInput');
+    const chips=[...document.querySelectorAll('.chip')];
+    const addBtn=document.getElementById('addBtn');
+    const editBtn=document.getElementById('editModeBtn');
+    const delBtn=document.getElementById('deleteModeBtn');
+    const formDialog=document.getElementById('formDialog');
+    const form=document.getElementById('personForm');
+    const editId=document.getElementById('editId');
+    const nameInput=document.getElementById('name');
+    const nidInput=document.getElementById('nid');
+    const categoryInput=document.getElementById('category');
+    const expiryInput=document.getElementById('expiry');
+    const photoInput=document.getElementById('photo');
+    const photoPreview=document.getElementById('photoPreview');
+    const dropZone=document.getElementById('dropZone');
+
+    let state={q:'',cat:'all',edit:false,del:false};
+    let ALL=[]; window.pastedImage=null;
+
+    const todayStr=()=>new Date().toISOString().slice(0,10);
+    const isExpired=d=> d && d < todayStr();
+    const daysLeft=d=> !d ? '' : Math.floor((new Date(d)-new Date(todayStr()))/86400000);
+
+    async function signInWithPasswordOnly(){
+      const { data:{ user } } = await sb.auth.getUser();
+      if(user) return;
+      const pwd = prompt('أدخل كلمة مرور الإدارة:');
+      if(!pwd){ location.replace('/'); return; }
+      const { error } = await sb.auth.signInWithPassword({ email: ADMIN_EMAIL, password: pwd });
+      if(error){ alert('كلمة المرور غير صحيحة'); location.replace('/'); }
+    }
+
+    function cardHTML(x){
+      const expired=isExpired(x.expiry); const left=daysLeft(x.expiry);
+      return `
+        <article class="card">
+          <span class="badge ${expired?'expired':'active'}">${expired? 'منتهي' : 'ساري'}${expired? '' : (Number.isFinite(left)? ' — باقي '+left+' يوم':'')}</span>
+          <span class="category">${x.category||''}</span>
+          <div class="media">${x.photo? `<img src="${x.photo}" alt="${x.name}">` : ''}</div>
+          <div class="content">
+            <div class="title">${x.name||'بدون اسم'}</div>
+            <div class="line"><span>هوية</span><span>${x.nid||'—'}</span></div>
+            <div class="line"><span>ينتهي</span><span>${x.expiry||'—'}</span></div>
+            <div class="status" style="color:${expired?'var(--accent)':'var(--ok)'}">${expired? 'انتهى — رجاء التجديد' : 'التأمين فعّال'}</div>
+          </div>
+          <div class="actions">
+            <button class="iconbtn ${state.edit?'':'hidden'}" id="edit_${x.id}" title="تعديل">✏️</button>
+            <button class="iconbtn danger ${(state.del && expired)?'':'hidden'}" id="del_${x.id}" title="حذف">🗑️</button>
+          </div>
+        </article>`;
+    }
+
+    function bindRowActions(list){
+      list.forEach(x=>{
+        const e=document.getElementById('edit_'+x.id);
+        const d=document.getElementById('del_'+x.id);
+        if(e) e.onclick=()=>openForm(x.id);
+        if(d) d.onclick=()=>tryDelete(x.id);
+      });
+    }
+
+    async function load(){
+      const { data, error } = await sb.from('insurances').select('*').order('expiry',{ascending:true});
+      ALL = error ? [] : data;
+      render();
+    }
+
+    function render(){
+      const q=state.q.trim().toLowerCase();
+      const list=ALL
+        .filter(x=>(!q || x.name?.toLowerCase().includes(q)||x.nid?.includes(q)) && (state.cat==='all'||(state.cat==='expired'? isExpired(x.expiry): x.category===state.cat)))
+        .sort((a,b)=>new Date(a.expiry)-new Date(b.expiry));
+      cards.innerHTML=list.map(cardHTML).join('');
+      bindRowActions(list);
+    }
+
+    function openForm(id){
+      form.reset(); photoPreview.src=''; window.pastedImage=null;
+      if(id){
+        const x=ALL.find(i=>i.id===id); if(!x) return;
+        editId.value=x.id; nameInput.value=x.name; nidInput.value=x.nid; categoryInput.value=x.category; expiryInput.value=x.expiry; photoPreview.src=x.photo||'';
+      } else editId.value='';
+      formDialog.showModal();
+    }
+    document.getElementById('cancelBtn').onclick=()=>{ formDialog.close(); window.pastedImage=null; };
+
+    form.onsubmit=async e=>{
+      e.preventDefault();
+      const id = editId.value || crypto.randomUUID();
+
+      let photoData = photoPreview.src || '';
+      if (window.pastedImage) {
+        photoData = window.pastedImage;
+      } else if (photoInput.files[0]) {
+        photoData = await fileToDataUrl(photoInput.files[0]);
+      }
+
+      const obj={ id, name:nameInput.value, nid:nidInput.value, category:categoryInput.value, expiry:expiryInput.value, photo:photoData };
+      const { error } = await sb.from('insurances').upsert(obj);
+      if(error){ alert('فشل الحفظ'); return; }
+      formDialog.close(); window.pastedImage=null;
+      await load();
+    };
+
+    async function tryDelete(id){
+      if(!confirm('تأكيد الحذف؟')) return;
+      await sb.from('insurances').delete().eq('id', id);
+      await load();
+    }
+
+    // لصق/سحب/اختيار صورة
+    document.addEventListener("paste", (event) => {
+      if (!formDialog.open) return;
+      const items = event.clipboardData?.items || [];
+      for (let i=0;i<items.length;i++){
+        if(items[i].type.indexOf("image")!==-1){
+          const file = items[i].getAsFile();
+          handleFile(file);
+          event.preventDefault();
+          break;
+        }
+      }
+    });
+    ['dragenter','dragover'].forEach(ev=>{
+      dropZone.addEventListener(ev, e=>{e.preventDefault(); dropZone.classList.add('drag');});
+    });
+    ['dragleave','drop'].forEach(ev=>{
+      dropZone.addEventListener(ev, e=>{e.preventDefault(); dropZone.classList.remove('drag');});
+    });
+    dropZone.addEventListener('drop', e=>{
+      const file = e.dataTransfer.files && e.dataTransfer.files[0];
+      if(file) handleFile(file);
+    });
+    photoInput.onchange=async()=>{ if(photoInput.files[0]) handleFile(photoInput.files[0]); }
+
+    function handleFile(file){
+      const fr=new FileReader();
+      fr.onload=()=>{ photoPreview.src=fr.result; window.pastedImage=fr.result; };
+      fr.readAsDataURL(file);
+    }
+    function fileToDataUrl(file){return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=rej;fr.readAsDataURL(file);})}
+
+    addBtn.onclick=()=>openForm();
+    editBtn.onclick=()=>{state.edit=!state.edit;render()}
+    delBtn.onclick=()=>{state.del=!state.del;render()}
+    searchInput.oninput=()=>{state.q=searchInput.value;render()}
+    chips.forEach(c=>c.onclick=()=>{chips.forEach(x=>x.setAttribute('aria-pressed','false'));c.setAttribute('aria-pressed','true');state.cat=c.dataset.cat;render()})
+    document.getElementById('year').textContent=new Date().getFullYear();
+
+    await signInWithPasswordOnly();
+    await load();
+  </script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>مستشفى ريسبكت — التأمينات (عرض)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0b0f14;--card:#0f151d;--muted:#92a0b3;--text:#e8eef6;--brand:#7a6bff;--accent:#ff6b6b;--ok:#63e6a5;--border:1px solid rgba(255,255,255,.08)}
+    body{margin:0;background:#0a0f14;color:var(--text);font-family:"Cairo",sans-serif}
+    .container{width:min(1180px,93%);margin:auto}
+    nav{position:sticky;top:0;z-index:30;background:#11171f;padding:12px 0;border-bottom:var(--border)}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800}
+    .brand span.logo{width:36px;height:36px;border-radius:10px;display:inline-block;background:center/cover no-repeat url('RTHospital.png');margin-left:8px}
+    .search{flex:1;display:flex;gap:8px;align-items:center;background:#121a25;border:var(--border);border-radius:12px;padding:8px 12px;margin:0 16px}
+    .search input{all:unset;flex:1;color:var(--text)}
+    .filters{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+    .chip{padding:8px 12px;border-radius:999px;border:var(--border);background:#121a25;color:var(--muted);cursor:pointer}
+    .chip[aria-pressed="true"]{background:var(--text);color:#0b0f14;border-color:transparent}
+    .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+    .card{background:var(--card);border:var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;position:relative}
+    .media img{width:100%;max-height:200px;object-fit:contain}
+    .content{padding:10px 12px;display:grid;gap:4px}
+    .title{font-weight:800;font-size:15px}
+    .line{color:var(--muted);font-size:12px;display:flex;justify-content:space-between}
+    .status{margin-top:2px;font-size:12px}
+    .badge{position:absolute;top:10px;left:10px;padding:6px 10px;border-radius:999px;font-size:12px;border:var(--border)}
+    .badge.expired{background:rgba(255,107,107,.16);color:var(--accent)}
+    .badge.active{background:rgba(99,230,165,.16);color:var(--ok)}
+    .category{position:absolute;top:10px;right:10px;padding:6px 10px;border-radius:999px;font-size:12px;background:rgba(255,255,255,.06);border:var(--border)}
+    footer{text-align:center;padding:20px 0;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="container nav-inner">
+      <div class="brand"><span class="logo"></span><span>مستشفى ريسبكت</span></div>
+      <div class="search"><input id="searchInput" placeholder="بحث بالاسم أو رقم الهوية" /></div>
+      <div class="nav-actions"></div>
+    </div>
+  </nav>
+
+  <header class="container">
+    <header class="container">
+  <div class="filters">
+    <button class="chip" data-cat="all" aria-pressed="true">الكل</button>
+    <button class="chip" data-cat="فضي">فضي</button>
+    <button class="chip" data-cat="ذهبي">ذهبي</button>
+    <button class="chip" data-cat="بلاتيني">بلاتيني</button>
+    <button class="chip" data-cat="soon">قريب ينتهي</button>
+    <button class="chip" data-cat="expired">منتهي</button>
+  </div>
+
+  <!-- ✅ هنا أضفنا قائمة الفرز -->
+  <div style="margin:8px 0; display:flex; gap:8px; align-items:center;">
+    <label style="color:var(--muted); font-size:13px;">الفرز:</label>
+    <select id="sortSelect" style="padding:8px 10px; border-radius:10px; border:var(--border); background:#121a25; color:var(--text)">
+      <option value="soon">الأقرب للانتهاء</option>
+      <option value="newest">المضافة حديثا</option>
+      
+    </select>
+  </div>
+</header>
+
+  </header>
+
+  <main class="container">
+    <div class="grid" id="cards"></div>
+  </main>
+
+  <footer>© <span id="year"></span> مستشفى ريسبكت</footer>
+
+  <!-- Supabase (عرض فقط) -->
+  <script type="module">
+  const SUPABASE_URL = "https://piexwsbnbyfqkylqykpi.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpZXh3c2JuYnlmcWt5bHF5a3BpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5MDk4MDAsImV4cCI6MjA3NDQ4NTgwMH0.BDYZ1ZAuhLOg7WTUiAWsedNuwRVKfiK-LpUbRsnic3Q";
+
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const cards=document.getElementById('cards');
+  const searchInput=document.getElementById('searchInput');
+  const chips=[...document.querySelectorAll('.chip')];
+  const sortSelect=document.getElementById('sortSelect');
+
+  const todayStr=()=>new Date().toISOString().slice(0,10);
+  const isExpired=d=> d && d < todayStr();
+  const daysLeft=d=> !d ? Number.POSITIVE_INFINITY : Math.floor((new Date(d)-new Date(todayStr()))/86400000);
+  const isSoon=d=> !isExpired(d) && daysLeft(d) <= 30;
+
+  function cardHTML(x){
+    const expired=isExpired(x.expiry); const left=daysLeft(x.expiry);
+    const leftText = (expired || !Number.isFinite(left)) ? '' : ` — باقي ${left} يوم`;
+    return `
+      <article class="card">
+        <span class="badge ${expired?'expired':'active'}">${expired?'منتهي':'ساري'}${leftText}</span>
+        <span class="category">${x.category||''}</span>
+        <div class="media">${x.photo? `<img src="${x.photo}" alt="${x.name}">` : ''}</div>
+        <div class="content">
+          <div class="title">${x.name||'بدون اسم'}</div>
+          <div class="line"><span>هوية</span><span>${x.nid||'—'}</span></div>
+          <div class="line"><span>ينتهي</span><span>${x.expiry||'—'}</span></div>
+          <div class="status" style="color:${expired?'var(--accent)':'var(--ok)'}">${expired?'انتهى — رجاء التجديد':'التأمين فعّال'}</div>
+        </div>
+      </article>`;
+  }
+
+  let ALL=[];
+
+  async function load(){
+    // نجيب كل شيء مع created_at للفرز
+    const { data, error } = await sb
+      .from('insurances')
+      .select('id,name,nid,category,expiry,photo,created_at')
+      .order('expiry',{ascending:true}); // ترتيب ابتدائي فقط
+    ALL = error ? [] : data;
+    render();
+  }
+
+  function applyFilters(list){
+    const q=(searchInput.value||'').trim().toLowerCase();
+    const cat=document.querySelector('.chip[aria-pressed="true"]')?.dataset.cat || 'all';
+    return list.filter(x=>{
+      const mq=!q || x.name?.toLowerCase().includes(q) || x.nid?.includes(q);
+      const mc=
+        cat==='all' ? true :
+        cat==='expired' ? isExpired(x.expiry) :
+        cat==='soon' ? isSoon(x.expiry) :
+        x.category===cat;
+      return mq && mc;
+    });
+  }
+
+  function applySort(list){
+    const mode = sortSelect?.value || 'soon';
+    const clone=[...list];
+    switch(mode){
+      case 'soon':   // الأقرب للانتهاء أولاً
+        clone.sort((a,b)=> daysLeft(a.expiry) - daysLeft(b.expiry));
+        break;
+      case 'newest': // الأحدث إضافة
+        clone.sort((a,b)=> new Date(b.created_at) - new Date(a.created_at));
+        break;
+    }
+    return clone;
+  }
+
+  function render(){
+    const filtered = applyFilters(ALL);
+    const sorted   = applySort(filtered);
+    cards.innerHTML = sorted.map(cardHTML).join('');
+  }
+
+  // 🔁 Realtime: أي إضافة/تعديل/حذف يحدث تحديث مباشر
+  function subscribeRealtime(){
+    sb.channel('insurances-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'insurances' }, async (payload)=>{
+        // تحديث ذكي بدون إعادة تحميل الصفحة بأكملها:
+        const { eventType, new:NEW, old:OLD } = payload;
+        if(eventType === 'INSERT'){
+          ALL.push(NEW);
+        } else if(eventType === 'UPDATE'){
+          const idx = ALL.findIndex(x=>x.id===NEW.id);
+          if(idx>-1) ALL[idx]=NEW; else ALL.push(NEW);
+        } else if(eventType === 'DELETE'){
+          ALL = ALL.filter(x=>x.id!==OLD.id);
+        }
+        render();
+      })
+      .subscribe();
+  }
+
+  // أحداث الواجهة
+  searchInput.oninput=render;
+  sortSelect?.addEventListener('change', render);
+  chips.forEach(c=>c.onclick=()=>{chips.forEach(x=>x.setAttribute('aria-pressed','false'));c.setAttribute('aria-pressed','true');render()});
+  document.getElementById('year').textContent=new Date().getFullYear();
+
+  await load();
+  subscribeRealtime();
+</script>
+
+  </script>
+</body>
+</html>
