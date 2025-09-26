@@ -72,25 +72,27 @@
   <footer>© <span id="year"></span> مستشفى ريسبكت</footer>
 
   <!-- Supabase (عرض فقط) -->
-  <script type="module">
+<!-- ضع هذا في آخر <body> -->
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
   const SUPABASE_URL = "https://piexwsbnbyfqkylqykpi.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpZXh3c2JuYnlmcWt5bHF5a3BpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5MDk4MDAsImV4cCI6MjA3NDQ4NTgwMH0.BDYZ1ZAuhLOg7WTUiAWsedNuwRVKfiK-LpUbRsnic3Q";
-
-  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const cards=document.getElementById('cards');
-  const searchInput=document.getElementById('searchInput');
-  const chips=[...document.querySelectorAll('.chip')];
-  const sortSelect=document.getElementById('sortSelect');
+  const cards = document.getElementById('cards');
+  const searchInput = document.getElementById('searchInput');
+  const chips = [...document.querySelectorAll('.chip')];
+  const sortSelect = document.getElementById('sortSelect');
 
-  const todayStr=()=>new Date().toISOString().slice(0,10);
-  const isExpired=d=> d && d < todayStr();
-  const daysLeft=d=> !d ? Number.POSITIVE_INFINITY : Math.floor((new Date(d)-new Date(todayStr()))/86400000);
-  const isSoon=d=> !isExpired(d) && daysLeft(d) <= 30;
+  const todayStr = () => new Date().toISOString().slice(0,10);
+  const isExpired = d => d && d < todayStr();
+  const daysLeft = d => !d ? Number.POSITIVE_INFINITY : Math.floor((new Date(d)-new Date(todayStr()))/86400000);
+  const isSoon = d => !isExpired(d) && daysLeft(d) <= 30;
 
   function cardHTML(x){
-    const expired=isExpired(x.expiry); const left=daysLeft(x.expiry);
+    const expired = isExpired(x.expiry);
+    const left = daysLeft(x.expiry);
     const leftText = (expired || !Number.isFinite(left)) ? '' : ` — باقي ${left} يوم`;
     return `
       <article class="card">
@@ -106,24 +108,31 @@
       </article>`;
   }
 
-  let ALL=[];
+  let ALL = [];
 
   async function load(){
-    // نجيب كل شيء مع created_at للفرز
+    console.log('[load] fetching from supabase…');
     const { data, error } = await sb
       .from('insurances')
       .select('id,name,nid,category,expiry,photo,created_at')
-      .order('expiry',{ascending:true}); // ترتيب ابتدائي فقط
-    ALL = error ? [] : data;
+      .order('expiry', { ascending: true });
+
+    if (error) {
+      console.error('[load] supabase error:', error);
+      ALL = [];
+    } else {
+      ALL = data || [];
+      console.log('[load] got rows:', ALL.length);
+    }
     render();
   }
 
   function applyFilters(list){
-    const q=(searchInput.value||'').trim().toLowerCase();
-    const cat=document.querySelector('.chip[aria-pressed="true"]')?.dataset.cat || 'all';
+    const q = (searchInput?.value || '').trim().toLowerCase();
+    const cat = document.querySelector('.chip[aria-pressed="true"]')?.dataset.cat || 'all';
     return list.filter(x=>{
-      const mq=!q || x.name?.toLowerCase().includes(q) || x.nid?.includes(q);
-      const mc=
+      const mq = !q || x.name?.toLowerCase().includes(q) || x.nid?.includes(q);
+      const mc =
         cat==='all' ? true :
         cat==='expired' ? isExpired(x.expiry) :
         cat==='soon' ? isSoon(x.expiry) :
@@ -134,29 +143,29 @@
 
   function applySort(list){
     const mode = sortSelect?.value || 'soon';
-    const clone=[...list];
+    const clone = [...list];
     switch(mode){
-      case 'soon':   // الأقرب للانتهاء أولاً
-        clone.sort((a,b)=> daysLeft(a.expiry) - daysLeft(b.expiry));
-        break;
-      case 'newest': // الأحدث إضافة
-        clone.sort((a,b)=> new Date(b.created_at) - new Date(a.created_at));
-        break;
+      case 'soon':   clone.sort((a,b)=> daysLeft(a.expiry) - daysLeft(b.expiry)); break;
+      case 'newest': clone.sort((a,b)=> new Date(b.created_at) - new Date(a.created_at)); break;
+      case 'oldest': clone.sort((a,b)=> new Date(a.created_at) - new Date(b.created_at)); break;
+      case 'far':    clone.sort((a,b)=> daysLeft(b.expiry) - daysLeft(a.expiry)); break;
     }
     return clone;
   }
 
   function render(){
     const filtered = applyFilters(ALL);
-    const sorted   = applySort(filtered);
+    const sorted = applySort(filtered);
     cards.innerHTML = sorted.map(cardHTML).join('');
+    console.log('[render] showing cards:', sorted.length);
   }
 
-  // 🔁 Realtime: أي إضافة/تعديل/حذف يحدث تحديث مباشر
+  // Realtime
   function subscribeRealtime(){
+    console.log('[realtime] subscribe…');
     sb.channel('insurances-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'insurances' }, async (payload)=>{
-        // تحديث ذكي بدون إعادة تحميل الصفحة بأكملها:
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'insurances' }, (payload)=>{
+        console.log('[realtime] event:', payload.eventType, payload);
         const { eventType, new:NEW, old:OLD } = payload;
         if(eventType === 'INSERT'){
           ALL.push(NEW);
@@ -171,16 +180,24 @@
       .subscribe();
   }
 
-  // أحداث الواجهة
-  searchInput.oninput=render;
-  sortSelect?.addEventListener('change', render);
-  chips.forEach(c=>c.onclick=()=>{chips.forEach(x=>x.setAttribute('aria-pressed','false'));c.setAttribute('aria-pressed','true');render()});
+  // UI bindings
+  searchInput && (searchInput.oninput = render);
+  sortSelect && sortSelect.addEventListener('change', render);
+  document.querySelectorAll('.chip').forEach(c=>{
+    c.onclick = ()=>{
+      document.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed','false'));
+      c.setAttribute('aria-pressed','true');
+      render();
+    };
+  });
   document.getElementById('year').textContent=new Date().getFullYear();
 
   await load();
   subscribeRealtime();
 </script>
 
+
 </body>
 </html>
+
 
