@@ -6,18 +6,42 @@
   <title>مستشفى ريسبكت — التأمينات (عرض)</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#0b0f14;--card:#0f151d;--muted:#92a0b3;--text:#e8eef6;--brand:#7a6bff;--accent:#ff6b6b;--ok:#63e6a5;--border:1px solid rgba(255,255,255,.08)}
+    :root{
+      --bg:#0b0f14;--card:#0f151d;--muted:#92a0b3;--text:#e8eef6;
+      --brand:#7a6bff;--accent:#ff6b6b;--ok:#63e6a5;
+      --border:1px solid rgba(255,255,255,.08);
+    }
     body{margin:0;background:#0a0f14;color:var(--text);font-family:"Cairo",sans-serif}
     .container{width:min(1180px,93%);margin:auto}
+
+    /* NAV */
     nav{position:sticky;top:0;z-index:30;background:#11171f;padding:12px 0;border-bottom:var(--border)}
     .nav-inner{display:flex;align-items:center;justify-content:space-between;gap:12px}
     .brand{display:flex;align-items:center;gap:10px;font-weight:800}
-    .brand span.logo{width:36px;height:36px;border-radius:10px;display:inline-block;background:center/cover no-repeat url('RTHospital.png');margin-left:8px}
+    .brand .logo{width:36px;height:36px;border-radius:10px;display:inline-block;background:center/cover no-repeat url('RTHospital.png');margin-left:8px}
     .search{flex:1;display:flex;gap:8px;align-items:center;background:#121a25;border:var(--border);border-radius:12px;padding:8px 12px;margin:0 16px}
     .search input{all:unset;flex:1;color:var(--text)}
+    .nav-actions{display:flex;gap:8px;align-items:center}
+    /* إجمالي صغير */
+    .total-badge{
+      display:inline-flex; align-items:center; gap:8px; padding:6px 10px;
+      border-radius:999px; border:var(--border); background:#121a25; color:var(--text);
+      font-size:12px;
+    }
+    .total-badge .dot{ width:8px; height:8px; border-radius:50%; background:var(--ok) }
+
+    /* FILTERS */
     .filters{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
     .chip{padding:8px 12px;border-radius:999px;border:var(--border);background:#121a25;color:var(--muted);cursor:pointer}
     .chip[aria-pressed="true"]{background:var(--text);color:#0b0f14;border-color:transparent}
+    /* ألوان الفلاتر */
+    .chip[data-cat="فضي"]{ background:rgba(192,192,192,.12); color:#c0c0c0; border:1px solid #c0c0c0; }
+    .chip[data-cat="ذهبي"]{ background:rgba(255,215,0,.12); color:#ffd700; border:1px solid #ffd700; }
+    .chip[data-cat="بلاتيني"]{ background:rgba(229,228,226,.12); color:#9eaaff; border:1px solid #9eaaff; }
+    .chip[data-cat="soon"]{ background:rgba(255,165,0,.12); color:#ffa500; border:1px solid #ffa500; }
+    .chip[data-cat="expired"]{ background:rgba(255,107,107,.12); color:#ff6b6b; border:1px solid #ff6b6b; }
+
+    /* GRID & CARD */
     .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
     .card{background:var(--card);border:var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;position:relative}
     .media img{width:100%;max-height:200px;object-fit:contain}
@@ -25,44 +49,77 @@
     .title{font-weight:800;font-size:15px}
     .line{color:var(--muted);font-size:12px;display:flex;justify-content:space-between}
     .status{margin-top:2px;font-size:12px}
-    .badge{position:absolute;top:10px;left:10px;padding:6px 10px;border-radius:999px;font-size:12px;border:var(--border)}
-    .badge.expired{background:rgba(255,107,107,.16);color:var(--accent)}
-    .badge.active{background:rgba(99,230,165,.16);color:var(--ok)}
-    .category{position:absolute;top:10px;right:10px;padding:6px 10px;border-radius:999px;font-size:12px;background:rgba(255,255,255,.06);border:var(--border)}
+
+    /* شارة المكان (نضع فيها الـ pill) */
+    .badge{position:absolute;top:10px;left:10px;padding:0;border:none;background:transparent}
+
+    /* شارة الفئة أعلى يمين البطاقة + ألوان الفئة نفسها (مهم) */
+    .category{position:absolute;top:10px;right:10px;padding:6px 10px;border-radius:999px;font-size:12px;border:var(--border);background:rgba(255,255,255,.06)}
+    .cat-silver{ color:#c0c0c0; border-color:#c0c0c0; background:rgba(192,192,192,.12) }
+    .cat-gold{   color:#ffd700; border-color:#ffd700; background:rgba(255,215,0,.12) }
+    .cat-plat{   color:#9eaaff; border-color:#9eaaff; background:rgba(229,228,226,.12) }
+
     footer{text-align:center;padding:20px 0;color:var(--muted)}
+
+    /* Intro / Splash */
+    #intro{
+      position:fixed; inset:0; z-index:9999;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      background:#0a0f14;
+      animation: fadeOut 0.8s ease forwards;
+      animation-delay: 2.2s;
+    }
+    #intro .intro-content{ text-align:center; color:var(--text); animation: scaleIn .5s ease; }
+    .intro-logo{ width:110px; height:110px; margin-bottom:14px; animation:pulse 1.8s infinite }
+    @keyframes fadeOut{ to{ opacity:0; visibility:hidden } }
+    @keyframes scaleIn{ from{ transform:scale(.9); opacity:.4 } to{ transform:none; opacity:1 } }
+    @keyframes pulse{ 0%,100%{ transform:scale(1) } 50%{ transform:scale(1.06) } }
+
+    /* PILL (شفافة + إطار + نقطة) */
+    .pill{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:2px 10px; border-radius:999px;
+      font-size:12px; line-height:1;
+      background:transparent; color:currentColor; border:1px solid currentColor;
+    }
+    .pill .dot{ width:6px; height:6px; border-radius:50%; background:currentColor; }
+    .pill.ok{      color: var(--ok);     }
+    .pill.soon{    color: #ffa500;       }
+    .pill.expired{ color: var(--accent); }
   </style>
 </head>
 <body>
+
+  <!-- INTRO -->
+  <div id="intro">
+    <div class="intro-content">
+      <img src="RTHospital.png" alt="شعار مستشفى ريسبكت" class="intro-logo" />
+      <h2 style="margin:6px 0 2px">مستشفى ريسبكت</h2>
+      <p style="margin:0; color:#9fb0c4; font-size:14px">نظام التأمينات</p>
+    </div>
+  </div>
+
   <nav>
     <div class="container nav-inner">
       <div class="brand"><span class="logo"></span><span>مستشفى ريسبكت</span></div>
       <div class="search"><input id="searchInput" placeholder="بحث بالاسم أو رقم الهوية" /></div>
-      <div class="nav-actions"></div>
+      <div class="nav-actions">
+        <div class="total-badge">الإجمالي <span id="totalCount">0</span> <span class="dot"></span></div>
+      </div>
     </div>
   </nav>
 
   <header class="container">
-    <header class="container">
-  <div class="filters">
-    <button class="chip" data-cat="all" aria-pressed="true">الكل</button>
-    <button class="chip" data-cat="فضي">فضي</button>
-    <button class="chip" data-cat="ذهبي">ذهبي</button>
-    <button class="chip" data-cat="بلاتيني">بلاتيني</button>
-    <button class="chip" data-cat="soon">قريب ينتهي</button>
-    <button class="chip" data-cat="expired">منتهي</button>
-  </div>
+    <div class="filters">
+      <button class="chip" data-cat="all" aria-pressed="true">الكل</button>
+      <button class="chip" data-cat="فضي">فضي</button>
+      <button class="chip" data-cat="ذهبي">ذهبي</button>
+      <button class="chip" data-cat="بلاتيني">بلاتيني</button>
+      <button class="chip" data-cat="soon">قريب ينتهي</button>
+      <button class="chip" data-cat="expired">منتهي</button>
+    </div>
 
-  <!-- ✅ هنا أضفنا قائمة الفرز -->
-  <div style="margin:8px 0; display:flex; gap:8px; align-items:center;">
-    <label style="color:var(--muted); font-size:13px;">الفرز:</label>
-    <select id="sortSelect" style="padding:8px 10px; border-radius:10px; border:var(--border); background:#121a25; color:var(--text)">
-      <option value="soon">الأقرب للانتهاء</option>
-      <option value="newest">المضافة حديثا</option>
-      
-    </select>
-  </div>
-</header>
-
+    
   </header>
 
   <main class="container">
@@ -72,132 +129,124 @@
   <footer>© <span id="year"></span> مستشفى ريسبكت</footer>
 
   <!-- Supabase (عرض فقط) -->
-<!-- ضع هذا في آخر <body> -->
-<script type="module">
-  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+  <script type="module">
+    const SUPABASE_URL = "https://piexwsbnbyfqkylqykpi.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpZXh3c2JuYnlmcWt5bHF5a3BpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5MDk4MDAsImV4cCI6MjA3NDQ4NTgwMH0.BDYZ1ZAuhLOg7WTUiAWsedNuwRVKfiK-LpUbRsnic3Q";
 
-  const SUPABASE_URL = "https://piexwsbnbyfqkylqykpi.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpZXh3c2JuYnlmcWt5bHF5a3BpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5MDk4MDAsImV4cCI6MjA3NDQ4NTgwMH0.BDYZ1ZAuhLOg7WTUiAWsedNuwRVKfiK-LpUbRsnic3Q";
-  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const cards = document.getElementById('cards');
-  const searchInput = document.getElementById('searchInput');
-  const chips = [...document.querySelectorAll('.chip')];
-  const sortSelect = document.getElementById('sortSelect');
+    const cards=document.getElementById('cards');
+    const searchInput=document.getElementById('searchInput');
+    const chips=[...document.querySelectorAll('.chip')];
+    const sortSelect=document.getElementById('sortSelect');
+    const totalCountEl=document.getElementById('totalCount');
 
-  const todayStr = () => new Date().toISOString().slice(0,10);
-  const isExpired = d => d && d < todayStr();
-  const daysLeft = d => !d ? Number.POSITIVE_INFINITY : Math.floor((new Date(d)-new Date(todayStr()))/86400000);
-  const isSoon = d => !isExpired(d) && daysLeft(d) <= 30;
+    const todayStr=()=>new Date().toISOString().slice(0,10);
+    const isExpired=d=> d && d < todayStr();
+    const daysLeft=d=> !d ? Number.POSITIVE_INFINITY : Math.floor((new Date(d)-new Date(todayStr()))/86400000);
+    const isSoon=d=> !isExpired(d) && daysLeft(d) <= 5;
 
-  function cardHTML(x){
-    const expired = isExpired(x.expiry);
-    const left = daysLeft(x.expiry);
-    const leftText = (expired || !Number.isFinite(left)) ? '' : ` — باقي ${left} يوم`;
-    return `
-      <article class="card">
-        <span class="badge ${expired?'expired':'active'}">${expired?'منتهي':'ساري'}${leftText}</span>
-        <span class="category">${x.category||''}</span>
-        <div class="media">${x.photo? `<img src="${x.photo}" alt="${x.name}">` : ''}</div>
-        <div class="content">
-          <div class="title">${x.name||'بدون اسم'}</div>
-          <div class="line"><span>هوية</span><span>${x.nid||'—'}</span></div>
-          <div class="line"><span>ينتهي</span><span>${x.expiry||'—'}</span></div>
-          <div class="status" style="color:${expired?'var(--accent)':'var(--ok)'}">${expired?'انتهى — رجاء التجديد':'التأمين فعّال'}</div>
-        </div>
-      </article>`;
-  }
-
-  let ALL = [];
-
-  async function load(){
-    console.log('[load] fetching from supabase…');
-    const { data, error } = await sb
-      .from('insurances')
-      .select('id,name,nid,category,expiry,photo,created_at')
-      .order('expiry', { ascending: true });
-
-    if (error) {
-      console.error('[load] supabase error:', error);
-      ALL = [];
-    } else {
-      ALL = data || [];
-      console.log('[load] got rows:', ALL.length);
+    function catClass(cat){
+      if(cat==='فضي') return 'cat-silver';
+      if(cat==='ذهبي') return 'cat-gold';
+      if(cat==='بلاتيني') return 'cat-plat';
+      return '';
     }
-    render();
-  }
 
-  function applyFilters(list){
-    const q = (searchInput?.value || '').trim().toLowerCase();
-    const cat = document.querySelector('.chip[aria-pressed="true"]')?.dataset.cat || 'all';
-    return list.filter(x=>{
-      const mq = !q || x.name?.toLowerCase().includes(q) || x.nid?.includes(q);
-      const mc =
-        cat==='all' ? true :
-        cat==='expired' ? isExpired(x.expiry) :
-        cat==='soon' ? isSoon(x.expiry) :
-        x.category===cat;
-      return mq && mc;
-    });
-  }
+    function cardHTML(x){
+      const expired=isExpired(x.expiry);
+      const left=daysLeft(x.expiry);
+      const pill = expired
+        ? `<span class="pill expired"><span class="dot"></span>منتهي</span>`
+        : (isSoon(x.expiry)
+            ? `<span class="pill soon"><span class="dot"></span>قريب (${left} يوم)</span>`
+            : `<span class="pill ok"><span class="dot"></span>ساري${Number.isFinite(left)?` — ${left} يوم`:''}</span>`);
+      const catCls = catClass(x.category);
 
-  function applySort(list){
-    const mode = sortSelect?.value || 'soon';
-    const clone = [...list];
-    switch(mode){
-      case 'soon':   clone.sort((a,b)=> daysLeft(a.expiry) - daysLeft(b.expiry)); break;
-      case 'newest': clone.sort((a,b)=> new Date(b.created_at) - new Date(a.created_at)); break;
-      case 'oldest': clone.sort((a,b)=> new Date(a.created_at) - new Date(b.created_at)); break;
-      case 'far':    clone.sort((a,b)=> daysLeft(b.expiry) - daysLeft(a.expiry)); break;
+      return `
+        <article class="card">
+          <span class="badge">${pill}</span>
+          <span class="category ${catCls}">${x.category||''}</span>
+          <div class="media">${x.photo? `<img src="${x.photo}" alt="${x.name}">` : ''}</div>
+          <div class="content">
+            <div class="title">${x.name||'بدون اسم'}</div>
+            <div class="line"><span>هوية</span><span>${x.nid||'—'}</span></div>
+            <div class="line"><span>ينتهي</span><span>${x.expiry||'—'}</span></div>
+            <div class="status" style="color:${expired?'var(--accent)':'var(--ok)'}">${expired? 'انتهى — رجاء التجديد':'التأمين فعّال'}</div>
+          </div>
+        </article>`;
     }
-    return clone;
-  }
 
-  function render(){
-    const filtered = applyFilters(ALL);
-    const sorted = applySort(filtered);
-    cards.innerHTML = sorted.map(cardHTML).join('');
-    console.log('[render] showing cards:', sorted.length);
-  }
+    let ALL=[];
 
-  // Realtime
-  function subscribeRealtime(){
-    console.log('[realtime] subscribe…');
-    sb.channel('insurances-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'insurances' }, (payload)=>{
-        console.log('[realtime] event:', payload.eventType, payload);
-        const { eventType, new:NEW, old:OLD } = payload;
-        if(eventType === 'INSERT'){
-          ALL.push(NEW);
-        } else if(eventType === 'UPDATE'){
-          const idx = ALL.findIndex(x=>x.id===NEW.id);
-          if(idx>-1) ALL[idx]=NEW; else ALL.push(NEW);
-        } else if(eventType === 'DELETE'){
-          ALL = ALL.filter(x=>x.id!==OLD.id);
-        }
-        render();
-      })
-      .subscribe();
-  }
-
-  // UI bindings
-  searchInput && (searchInput.oninput = render);
-  sortSelect && sortSelect.addEventListener('change', render);
-  document.querySelectorAll('.chip').forEach(c=>{
-    c.onclick = ()=>{
-      document.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed','false'));
-      c.setAttribute('aria-pressed','true');
+    async function load(){
+      const { data, error } = await sb
+        .from('insurances')
+        .select('id,name,nid,category,expiry,photo,created_at')
+        .order('expiry',{ascending:true});
+      ALL = error ? [] : data;
+      totalCountEl.textContent = ALL.length || 0;
       render();
-    };
-  });
-  document.getElementById('year').textContent=new Date().getFullYear();
+    }
 
-  await load();
-  subscribeRealtime();
-</script>
+    function applyFilters(list){
+      const q=(searchInput.value||'').trim().toLowerCase();
+      const cat=document.querySelector('.chip[aria-pressed="true"]')?.dataset.cat || 'all';
+      return list.filter(x=>{
+        const mq=!q || x.name?.toLowerCase().includes(q) || x.nid?.includes(q);
+        const mc=
+          cat==='all' ? true :
+          cat==='expired' ? isExpired(x.expiry) :
+          cat==='soon' ? isSoon(x.expiry) :
+          x.category===cat;
+        return mq && mc;
+      });
+    }
 
+    function applySort(list){
+      const mode = sortSelect?.value || 'soon';
+      const clone=[...list];
+      switch(mode){
+        case 'soon':   clone.sort((a,b)=> daysLeft(a.expiry) - daysLeft(b.expiry)); break;
+        case 'newest': clone.sort((a,b)=> new Date(b.created_at) - new Date(a.created_at)); break;
+      }
+      return clone;
+    }
 
+    function render(){
+      const filtered = applyFilters(ALL);
+      const sorted   = applySort(filtered);
+      cards.innerHTML = sorted.map(cardHTML).join('');
+    }
+
+    function subscribeRealtime(){
+      sb.channel('insurances-realtime')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'insurances' }, async (payload)=>{
+          const { eventType, new:NEW, old:OLD } = payload;
+          if(eventType === 'INSERT'){
+            ALL.push(NEW);
+          } else if(eventType === 'UPDATE'){
+            const idx = ALL.findIndex(x=>x.id===NEW.id);
+            if(idx>-1) ALL[idx]=NEW; else ALL.push(NEW);
+          } else if(eventType === 'DELETE'){
+            ALL = ALL.filter(x=>x.id!==OLD.id);
+          }
+          totalCountEl.textContent = ALL.length || 0;
+          render();
+        })
+        .subscribe();
+    }
+
+    searchInput.oninput=render;
+    sortSelect?.addEventListener('change', render);
+    chips.forEach(c=>c.onclick=()=>{chips.forEach(x=>x.setAttribute('aria-pressed','false'));c.setAttribute('aria-pressed','true');render()});
+    document.getElementById('year').textContent=new Date().getFullYear();
+
+    await load();
+    subscribeRealtime();
+
+    setTimeout(()=>{ const el=document.getElementById('intro'); if(el) el.style.display='none'; }, 2400);
+  </script>
 </body>
 </html>
-
-
