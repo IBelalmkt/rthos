@@ -10,22 +10,12 @@
     :root{--bg:#0b0f14;--card:#0f151d;--muted:#92a0b3;--text:#e8eef6;--brand:#7a6bff;--accent:#ff6b6b;--ok:#63e6a5;--border:1px solid rgba(255,255,255,.08)}
     body{margin:0;background:#0a0f14;color:var(--text);font-family:"Cairo",sans-serif}
     .container{width:min(1180px,93%);margin:auto}
-
-    /* Intro */
-    #intro{
-      position:fixed; inset:0; z-index:9999;
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      background:#0a0f14;
-      animation: fadeOut 0.8s ease forwards;
-      animation-delay: 2.2s;
-    }
+    #intro{position:fixed; inset:0; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#0a0f14; animation: fadeOut 0.8s ease forwards; animation-delay: 2.2s;}
     #intro .intro-content{ text-align:center; color:var(--text); animation: scaleIn .5s ease; }
     .intro-logo{ width:110px; height:110px; margin-bottom:14px; animation:pulse 1.8s infinite }
     @keyframes fadeOut{ to{ opacity:0; visibility:hidden } }
     @keyframes scaleIn{ from{ transform:scale(.9); opacity:.4 } to{ transform:none; opacity:1 } }
     @keyframes pulse{ 0%,100%{ transform:scale(1) } 50%{ transform:scale(1.06) } }
-
-    /* NAV */
     nav{position:sticky;top:0;z-index:30;background:#11171f;padding:12px 0;border-bottom:var(--border)}
     .nav-inner{display:flex;align-items:center;justify-content:space-between;gap:12px}
     .brand{display:flex;align-items:center;gap:10px;font-weight:800}
@@ -38,8 +28,6 @@
     .btn.warn{background:#30191c}
     .total-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:var(--border);background:#121a25;color:var(--text);font-size:12px}
     .total-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--ok)}
-
-    /* FILTERS */
     .filters{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
     .chip{padding:8px 12px;border-radius:999px;border:var(--border);background:#121a25;color:var(--muted);cursor:pointer}
     .chip[aria-pressed="true"]{background:var(--text);color:#0b0f14;border-color:transparent}
@@ -47,10 +35,7 @@
     .chip[data-cat="ذهبي"]{ background:rgba(255,215,0,.12); color:#ffd700; border:1px solid #ffd700; }
     .chip[data-cat="بلاتيني"]{ background:rgba(229,228,226,.12); color:#9eaaff; border:1px solid #9eaaff; }
     .chip[data-cat="expired"]{ background:rgba(255,107,107,.12); color:#ff6b6b; border:1px solid #ff6b6b; }
-    /* ✅ زر قريب ينتهي */
     .chip[data-cat="soon"]{ background:rgba(255,165,0,.12); color:#ffa500; border:1px solid #ffa500; }
-
-    /* GRID & CARD */
     .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
     .card{background:var(--card);border:var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;position:relative}
     .media{background:#0a0f14;display:grid;place-items:center}
@@ -59,24 +44,16 @@
     .title{font-weight:800;font-size:15px}
     .line{color:var(--muted);font-size:12px;display:flex;justify-content:space-between}
     .status{margin-top:2px;font-size:12px}
-
-    /* pill موضع */
     .badge{position:absolute;top:10px;left:10px;padding:0;border:none;background:transparent}
-
-    /* شارة الفئة داخل البطاقة */
     .category{position:absolute;top:10px;right:10px;padding:6px 10px;border-radius:999px;font-size:12px;border:var(--border);background:rgba(255,255,255,.06)}
     .cat-silver{ color:#c0c0c0; border-color:#c0c0c0; background:rgba(192,192,192,.12) }
     .cat-gold{   color:#ffd700; border-color:#ffd700; background:rgba(255,215,0,.12) }
     .cat-plat{   color:#9eaaff; border-color:#9eaaff; background:rgba(229,228,226,.12) }
-
     .actions{display:flex;gap:8px;padding:8px 12px;border-top:var(--border);background:#0f151d}
     .iconbtn{width:32px;height:32px;display:grid;place-items:center;border-radius:8px;border:var(--border);background:#141c28;cursor:pointer}
     .iconbtn.danger{background:#311c1f}
     .hidden{display:none!important}
-
     footer{text-align:center;padding:20px 0;color:var(--muted)}
-
-    /* DIALOG */
     dialog{border:none;border-radius:16px;background:#0f141d;color:var(--text);width:min(480px,94%)}
     dialog::backdrop{background:rgba(0,0,0,.55)}
     form{display:grid;gap:12px;padding:18px}
@@ -90,14 +67,7 @@
     .preview-controls{flex:1;min-width:0;display:grid;gap:8px}
     .preview-controls input[type="file"]{width:100%;max-width:100%;box-sizing:border-box;direction:ltr}
     .preview-controls .hint{font-size:12px;color:var(--muted);line-height:1.5}
-
-    /* PILL */
-    .pill{
-      display:inline-flex; align-items:center; gap:6px;
-      padding:2px 10px; border-radius:999px;
-      font-size:12px; line-height:1;
-      background:transparent; color:currentColor; border:1px solid currentColor;
-    }
+    .pill{display:inline-flex; align-items:center; gap:6px; padding:2px 10px; border-radius:999px; font-size:12px; line-height:1; background:transparent; color:currentColor; border:1px solid currentColor;}
     .pill .dot{ width:6px; height:6px; border-radius:50%; background:currentColor; }
     .pill.ok{      color: var(--ok);     }
     .pill.soon{    color: #ffa500;       }
@@ -105,8 +75,6 @@
   </style>
 </head>
 <body>
-
-  <!-- INTRO -->
   <div id="intro">
     <div class="intro-content">
       <img src="RTHospital.png" alt="شعار مستشفى ريسبكت" class="intro-logo" />
@@ -134,7 +102,6 @@
       <button class="chip" data-cat="فضي">فضي</button>
       <button class="chip" data-cat="ذهبي">ذهبي</button>
       <button class="chip" data-cat="بلاتيني">بلاتيني</button>
-      <!-- ✅ زر قريب ينتهي -->
       <button class="chip" data-cat="soon">قريب ينتهي</button>
       <button class="chip" data-cat="expired">منتهي</button>
     </div>
@@ -158,16 +125,9 @@
           <div class="hint">تقدر تسحب-وتفلت الصورة هنا، أو تضغط <b>Ctrl+V</b> للصق صورة.</div>
         </div>
       </div>
-
       <div class="row2">
-        <div>
-          <label>الاسم</label>
-          <input type="text" id="name" required />
-        </div>
-        <div>
-          <label>رقم الهوية</label>
-          <input type="text" id="nid" required />
-        </div>
+        <div><label>الاسم</label><input type="text" id="name" required /></div>
+        <div><label>رقم الهوية</label><input type="text" id="nid" required /></div>
       </div>
       <div class="row2">
         <div>
@@ -178,10 +138,7 @@
             <option value="بلاتيني">بلاتيني</option>
           </select>
         </div>
-        <div>
-          <label>تاريخ الانتهاء</label>
-          <input type="date" id="expiry" required />
-        </div>
+        <div><label>تاريخ الانتهاء</label><input type="date" id="expiry" required /></div>
       </div>
       <div class="dialog-actions">
         <button type="button" class="btn" id="cancelBtn">إلغاء</button>
@@ -190,11 +147,11 @@
     </form>
   </dialog>
 
-  <!-- Supabase (إدارة) -->
   <script type="module">
     const SUPABASE_URL = "https://piexwsbnbyfqkylqykpi.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpZXh3c2JuYnlmcWt5bHF5a3BpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5MDk4MDAsImV4cCI6MjA3NDQ4NTgwMH0.BDYZ1ZAuhLOg7WTUiAWsedNuwRVKfiK-LpUbRsnic3Q";
     const ADMIN_EMAIL = "belmonster691@gmail.com";
+    const BUCKET = "ins-photos";
 
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -223,18 +180,8 @@
     const todayStr=()=>new Date().toISOString().slice(0,10);
     const isExpired=d=> d && d < todayStr();
     const daysLeft=d=> !d ? '' : Math.floor((new Date(d)-new Date(todayStr()))/86400000);
-
-    function isSoon(d){
-      const left=daysLeft(d);
-      return !isExpired(d) && Number.isFinite(left) && left<=5;
-    }
-
-    function catClass(cat){
-      if(cat==='فضي') return 'cat-silver';
-      if(cat==='ذهبي') return 'cat-gold';
-      if(cat==='بلاتيني') return 'cat-plat';
-      return '';
-    }
+    function isSoon(d){ const left=daysLeft(d); return !isExpired(d) && Number.isFinite(left) && left<=5; }
+    function catClass(cat){ if(cat==='فضي')return'cat-silver'; if(cat==='ذهبي')return'cat-gold'; if(cat==='بلاتيني')return'cat-plat'; return''; }
 
     async function signInWithPasswordOnly(){
       const { data:{ user } } = await sb.auth.getUser();
@@ -248,16 +195,12 @@
     function cardHTML(x){
       const expired=isExpired(x.expiry);
       const left=daysLeft(x.expiry);
-      const soon = !expired && Number.isFinite(left) && left <= 5;
-
+      const soon=!expired && Number.isFinite(left) && left<=5;
       const pill = expired
         ? `<span class="pill expired"><span class="dot"></span>منتهي</span>`
-        : (soon
-            ? `<span class="pill soon"><span class="dot"></span>قريب (${left} يوم)</span>`
-            : `<span class="pill ok"><span class="dot"></span>ساري${Number.isFinite(left)?` — ${left} يوم`:''}</span>`);
-
-      const catCls = catClass(x.category);
-
+        : (soon ? `<span class="pill soon"><span class="dot"></span>قريب (${left} يوم)</span>`
+                : `<span class="pill ok"><span class="dot"></span>ساري${Number.isFinite(left)?` — ${left} يوم`:''}</span>`);
+      const catCls=catClass(x.category);
       return `
         <article class="card">
           <span class="badge">${pill}</span>
@@ -302,9 +245,7 @@
               ? isExpired(x.expiry)
               : state.cat==='soon'
                 ? isSoon(x.expiry)
-                : x.category===state.cat
-          )
-        )
+                : x.category===state.cat))
         .sort((a,b)=>new Date(a.expiry)-new Date(b.expiry));
       cards.innerHTML=list.map(cardHTML).join('');
       bindRowActions(list);
@@ -314,24 +255,42 @@
       form.reset(); photoPreview.src=''; window.pastedImage=null;
       if(id){
         const x=ALL.find(i=>i.id===id); if(!x) return;
-        editId.value=x.id; nameInput.value=x.name; nidInput.value=x.nid; categoryInput.value=x.category; expiryInput.value=x.expiry; photoPreview.src=x.photo||'';
+        editId.value=x.id; nameInput.value=x.name||''; nidInput.value=x.nid||''; categoryInput.value=x.category||'فضي'; expiryInput.value=x.expiry||''; photoPreview.src=x.photo||'';
       } else editId.value='';
       formDialog.showModal();
     }
     document.getElementById('cancelBtn').onclick=()=>{ formDialog.close(); window.pastedImage=null; };
 
+    function dataUrlToBlob(d){
+      const [h,b]=d.split(',');
+      const mime=(h.split(';')[0]||'').replace('data:','')||'image/png';
+      const bin=atob(b||'');
+      const u8=new Uint8Array(bin.length);
+      for(let i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i);
+      return new Blob([u8],{type:mime});
+    }
+    function extFromType(t){ return t==='image/jpeg'?'jpg':t==='image/png'?'png':t==='image/webp'?'webp':'bin'; }
+
     form.onsubmit=async e=>{
       e.preventDefault();
       const id = editId.value || crypto.randomUUID();
+      const existing = ALL.find(i=>i.id===id) || null;
 
-      let photoData = photoPreview.src || '';
-      if (window.pastedImage) {
-        photoData = window.pastedImage;
-      } else if (photoInput.files[0]) {
-        photoData = await fileToDataUrl(photoInput.files[0]);
+      let fileOrBlob=null;
+      if(window.pastedImage) fileOrBlob = dataUrlToBlob(window.pastedImage);
+      else if(photoInput.files[0]) fileOrBlob = photoInput.files[0];
+
+      let photoUrl = existing?.photo || null;
+      if(fileOrBlob){
+        const ext = extFromType(fileOrBlob.type||'image/png');
+        const path = `ins/${id}.${ext}`;
+        const up = await sb.storage.from(BUCKET).upload(path, fileOrBlob, { upsert:true, contentType:fileOrBlob.type||'image/png', cacheControl:'31536000' });
+        if(up.error){ alert('فشل رفع الصورة'); return; }
+        const { data } = sb.storage.from(BUCKET).getPublicUrl(path);
+        photoUrl = data.publicUrl;
       }
 
-      const obj={ id, name:nameInput.value, nid:nidInput.value, category:categoryInput.value, expiry:expiryInput.value, photo:photoData };
+      const obj={ id, name:nameInput.value.trim(), nid:nidInput.value.trim(), category:categoryInput.value, expiry:expiryInput.value, photo:photoUrl };
       const { error } = await sb.from('insurances').upsert(obj);
       if(error){ alert('فشل الحفظ'); return; }
       formDialog.close(); window.pastedImage=null;
@@ -344,7 +303,6 @@
       await load();
     }
 
-    // لصق/سحب/اختيار صورة
     document.addEventListener("paste", (event) => {
       if (!formDialog.open) return;
       const items = event.clipboardData?.items || [];
@@ -368,13 +326,7 @@
       if(file) handleFile(file);
     });
     photoInput.onchange=async()=>{ if(photoInput.files[0]) handleFile(photoInput.files[0]); }
-
-    function handleFile(file){
-      const fr=new FileReader();
-      fr.onload=()=>{ photoPreview.src=fr.result; window.pastedImage=fr.result; };
-      fr.readAsDataURL(file);
-    }
-    function fileToDataUrl(file){return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=rej;fr.readAsDataURL(file);})}
+    function handleFile(file){ const fr=new FileReader(); fr.onload=()=>{ photoPreview.src=fr.result; window.pastedImage=fr.result; }; fr.readAsDataURL(file); }
 
     addBtn.onclick=()=>openForm();
     editBtn.onclick=()=>{state.edit=!state.edit;render()}
@@ -385,7 +337,6 @@
 
     await signInWithPasswordOnly();
     await load();
-
     setTimeout(()=>{ const el=document.getElementById('intro'); if(el) el.style.display='none'; }, 2400);
   </script>
 </body>
