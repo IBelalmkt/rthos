@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>لوغ التأمينات</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#0b0f14; --bg2:#0a0f14;
+  --panel:rgba(18,22,30,.75);
+  --card:rgba(16,21,29,.62);
+  --glass:rgba(16,21,29,.48);
+  --text:#eaf2ff; --muted:#9db0c6;
+  --brand:#7a6bff; --mint:#63e6a5; --sky:#77d1ff; --rose:#ff8fb1; --amber:#ffc86e;
+  --upd:#163257; --ins:#123b2d; --del:#3a1c27;
+  --border:1px solid rgba(255,255,255,.10);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;color:var(--text);font-family:"Cairo",sans-serif;
+  background:
+    radial-gradient(900px 550px at 12% -10%, rgba(122,107,255,.16), transparent),
+    radial-gradient(1000px 700px at 95% 120%, rgba(99,230,165,.10), transparent),
+    linear-gradient(180deg,var(--bg1),var(--bg2));
+}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:40;background:linear-gradient(180deg,rgba(15,21,29,.9),rgba(15,21,29,.65));backdrop-filter:blur(12px);border-bottom:var(--border)}
+.nav{width:min(1100px,92%);margin:auto;padding:12px 0;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}
+.brand{display:flex;gap:10px;font-weight:800}
+.brand .logo{width:36px;height:36px;border-radius:10px;background:url('RTHospital.png') center/cover no-repeat;box-shadow:0 0 0 1px rgba(255,255,255,.12) inset}
+.toolbar{display:flex;gap:8px;align-items:center;background:var(--panel);border:var(--border);border-radius:14px;padding:8px}
+.toolbar>*{background:#131b26;border:var(--border);color:var(--text);border-radius:12px;padding:10px 12px;font-weight:700;font-size:12px}
+.toolbar .refresh{background:linear-gradient(180deg,#2b2a69,#232151)}
+.link{display:inline-flex;gap:8px;align-items:center;padding:10px 14px;border-radius:12px;border:var(--border);background:#141b26;color:#e9f1ff;text-decoration:none;font-weight:800;font-size:13px}
+
+/* LAYOUT */
+.container{width:min(1100px,92%);margin:18px auto 36px}
+.timeline{position:relative;padding-inline-start:22px}
+.timeline:before{content:"";position:absolute;inset:0 auto 0 10px;width:2px;background:linear-gradient(180deg,rgba(122,107,255,.45),rgba(99,230,165,.35));border-radius:2px}
+
+/* CARD */
+.card{position:relative;background:var(--card);border:var(--border);border-radius:16px;padding:12px 14px;margin:14px 0;box-shadow:0 16px 36px rgba(0,0,0,.28)}
+.card:before{content:"";position:absolute;left:-12px;top:18px;width:10px;height:10px;border-radius:50%;background:linear-gradient(180deg,#7a6bff,#63e6a5);box-shadow:0 0 0 5px rgba(122,107,255,.18)}
+.head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:13px;color:#dfe9ff;margin-bottom:6px}
+.op{padding:4px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);font-weight:900}
+.op.insert{background:rgba(99,230,165,.15);color:#d6ffe9;border-color:rgba(99,230,165,.35)}
+.op.update{background:rgba(119,209,255,.15);color:#e8f7ff;border-color:rgba(119,209,255,.35)}
+.op.delete{background:rgba(255,143,177,.16);color:#ffe6ee;border-color:rgba(255,143,177,.35)}
+.time{opacity:.9;padding:4px 8px;border-radius:10px;background:#132033;border:1px solid rgba(255,255,255,.08)}
+.actor{margin-inline-start:auto;display:flex;align-items:center;gap:8px;font-weight:800}
+.avatar{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#1a2533;border:1px solid rgba(255,255,255,.14);color:#cfe2ff;font-size:11px}
+.count{background:#141f30;border:var(--border);border-radius:999px;padding:2px 8px;font-size:12px;color:#cdd5ff}
+
+/* TARGET */
+.target{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px;border:1px solid rgba(255,255,255,.10);border-radius:12px;background:var(--glass);margin:6px 0 10px}
+.badge{background:#131f30;border:1px solid rgba(255,255,255,.12);padding:4px 10px;border-radius:999px;font-size:12px;color:#c9d8ee}
+.target b{color:#fff}
+
+/* DIFFS (قديم ← جديد) */
+.diffs{display:grid;gap:8px}
+.diff{background:#101a27;border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:10px;font-size:13px;display:grid;gap:4px}
+.diff .k{font-weight:800}
+.row{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center}
+.val{display:flex;gap:10px;flex-wrap:wrap}
+.badge-yn{padding:2px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:#141a26}
+.yes{color:#bfffe9;border-color:rgba(191,255,233,.28);background:rgba(191,255,233,.10)}
+.no{color:#ffc0cf;border-color:rgba(255,192,207,.28);background:rgba(255,192,207,.10)}
+.arrow{opacity:.9}
+.thumb{width:44px;height:44px;border-radius:10px;object-fit:cover;border:1px solid rgba(255,255,255,.12)}
+.msg{padding:18px;text-align:center;color:var(--muted);border:1px dashed rgba(255,255,255,.24);border-radius:12px;background:rgba(16,21,29,.42)}
+
+@media (max-width:640px){
+  .nav{grid-template-columns:1fr auto}.brand{grid-column:1/3}
+  .toolbar{flex-wrap:wrap}.row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav">
+    <div class="brand"><span class="logo"></span><span>لوغ التأمينات</span></div>
+
+    <div class="toolbar">
+      <button id="refresh" class="refresh">تحديث</button>
+      <select id="opFilter">
+        <option value="all">كل العمليات</option>
+        <option value="insert">insert</option>
+        <option value="update">update</option>
+        <option value="delete">delete</option>
+      </select>
+      <input id="from" type="date" title="من" />
+      <span>إلى</span>
+      <input id="to" type="date" title="إلى" />
+      <input id="search" placeholder="بحث بالاسم/الإيميل" style="flex:1" />
+    </div>
+
+    <a class="link" href="admin.html">⟵ رجوع للتأمينات</a>
+  </div>
+</nav>
+
+<main class="container">
+  <section class="timeline"><div id="wrap"></div></section>
+</main>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+/* Supabase */
+const sb = createClient(
+  "https://piexwsbnbyfqkylqykpi.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpZXh3c2JuYnlmcWt5bHF5a3BpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5MDk4MDAsImV4cCI6MjA3NDQ4NTgwMH0.BDYZ1ZAuhLOg7WTUiAWsedNuwRVKfiK-LpUbRsnic3Q"
+);
+
+/* عناصر */
+const wrap=document.getElementById('wrap');
+const refresh=document.getElementById('refresh');
+const opFilter=document.getElementById('opFilter');
+const fromDate=document.getElementById('from');
+const toDate=document.getElementById('to');
+const search=document.getElementById('search');
+
+/* (اختياري) اسم بدل الإيميل من admin_users */
+let EMAIL_MAP = {};
+async function loadEmailMap(){
+  const { data } = await sb.from('admin_users').select('email,display_name');
+  if (data) EMAIL_MAP = Object.fromEntries(data.map(r=>[r.email,r.display_name]));
+}
+const nameFromEmail = e => EMAIL_MAP[e] || e;
+
+/* وقت السعودية */
+const toKSA = ts => {
+  try{
+    return new Date(ts).toLocaleString('en-GB',{timeZone:'Asia/Riyadh',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }catch{return ts;}
+};
+
+/* تسميات الحقول */
+const labelMap = { name:'الاسم', nid:'رقم الهوية', category:'الفئة', expiry:'تاريخ الانتهاء', photo:'الصورة' };
+const label = k => labelMap[k] || k;
+
+/* عرض القيم */
+const looksLikeImage = (v,key)=>{
+  if (key==='photo' && typeof v==='string') return true;
+  if (typeof v!=='string') return false;
+  const http=/^https?:\/\//i.test(v); const ext=/\.(png|jpe?g|webp|gif|svg)(\?|$)/i.test(v);
+  const supa=v.includes('/storage/v1/object/')||v.includes('/object/public/');
+  return http&&(ext||supa);
+};
+const isBool = v => v===true || v===false;
+const esc = s => String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+const fmt = (v,k)=>{
+  if (v===null || v===undefined || v==='') return '—';
+  if (isBool(v)) return `<span class="badge-yn ${v?'yes':'no'}">${v?'نعم':'لا'}</span>`;
+  if (looksLikeImage(v,k)) return `<img class="thumb" src="${esc(String(v))}" alt="">`;
+  return esc(String(v));
+};
+
+/* سهم الاتجاه: RTL = ← ، LTR = → */
+const ARROW = document.documentElement.dir === 'rtl' ? '←' : '→';
+
+/* صف اختلاف (قديم ← جديد) */
+const diffRow = d => `
+  <div class="diff">
+    <div class="k">${label(d.key||'')}</div>
+    <div class="row">
+      <div class="val">${fmt(d.before,d.key)}</div>
+      <div class="arrow">${ARROW}</div>
+      <div class="val"><b>${fmt(d.after,d.key)}</b></div>
+    </div>
+  </div>`;
+
+/* البطاقة */
+function card(row){
+  const diffs = Array.isArray(row.diffs) ? row.diffs : (row.diffs||[]);
+  const count = diffs.length;
+  const actor = nameFromEmail(row.actor_email || '—');
+  return `
+    <article class="card">
+      <div class="head">
+        <span class="op ${row.op}">${row.op}</span>
+        <span class="time">${toKSA(row.created_at)}</span>
+        <span class="actor"><span class="avatar">${(actor||'')[0]?.toUpperCase()||'👤'}</span>${esc(actor)}</span>
+        ${count?`<span class="count" title="عدد الحقول المتغيرة">${count}</span>`:''}
+      </div>
+      <div class="target">
+        <span class="badge">المستهدف</span>
+        <b>${esc(row.target_name||'—')}</b>
+      </div>
+      ${count?`<div class="diffs">${diffs.map(diffRow).join('')}</div>`:`<div class="msg">لا توجد تفاصيل تغييرات.</div>`}
+    </article>
+  `;
+}
+
+/* تحميل */
+async function load(){
+  wrap.innerHTML = `<div class="msg">... تحميل</div>`;
+  let q = sb.from('insurance_logs')
+            .select('id, created_at, op, actor_email, insurance_id, target_name, diffs')
+            .order('created_at', { ascending:false })
+            .limit(500);
+
+  if (opFilter.value!=='all') q = q.eq('op', opFilter.value);
+  if (fromDate.value){ q = q.gte('created_at', new Date(fromDate.value).toISOString()); }
+  if (toDate.value){ const t=new Date(toDate.value); t.setDate(t.getDate()+1); q = q.lt('created_at', t.toISOString()); }
+  if (search.value.trim()){
+    const s = search.value.trim();
+    q = q.or(`target_name.ilike.%${s}%,actor_email.ilike.%${s}%`);
+  }
+
+  const { data, error } = await q;
+  if (error){ wrap.innerHTML = `<div class="msg">فشل جلب اللوقات: ${esc(error.message)}</div>`; return; }
+  wrap.innerHTML = (data && data.length) ? data.map(card).join('') : `<div class="msg">لا توجد سجلات.</div>`;
+}
+
+/* أحداث */
+refresh.onclick = load;
+[opFilter, fromDate, toDate].forEach(el=> el.addEventListener('change', load));
+let st; search.addEventListener('input', ()=>{ clearTimeout(st); st=setTimeout(load, 240); });
+
+/* بثّ حي */
+sb.channel('insurance-logs-rt')
+  .on('postgres_changes', { event:'*', schema:'public', table:'insurance_logs' }, load)
+  .subscribe();
+
+/* بدء */
+await loadEmailMap();   // اختياري
+await load();
+</script>
+</body>
+</html>
