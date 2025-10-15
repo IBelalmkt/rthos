@@ -189,7 +189,7 @@ function card(row){
         <span class="badge">المستهدف</span>
         <b>${esc(row.target_name||'—')}</b>
       </div>
-      ${count?`<div class="diffs">${diffs.map(diffRow).join('')}</div>`:`<div class="msg">لا توجد تفاصيل تغييرات.</div>`}
+      ${count?`<div class="diffs">${diffs.map(diffRow).join('')}</div>`:`<div class="msg">تمت ازالته.</div>`}
     </article>
   `;
 }
@@ -231,4 +231,5 @@ await load();
 </script>
 </body>
 </html>
+
 
