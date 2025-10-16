@@ -7,7 +7,25 @@
   <title>مستشفى ريسبكت — التأمينات (إدارة)</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#0b0f14;--card:#0f151d;--muted:#92a0b3;--text:#e8eef6;--brand:#7a6bff;--accent:#ff6b6b;--ok:#63e6a5;--border:1px solid rgba(255,255,255,.08)}
+    :root{
+      /* لمسات حركة خفيفة */
+.card{ transition: transform .15s ease, box-shadow .2s ease; }
+.card:hover{ transform: translateY(-2px); box-shadow:0 12px 28px rgba(0,0,0,.28); }
+
+.chip{ transition: transform .12s ease, background .2s ease, color .2s ease; }
+.chip:hover{ transform: translateY(-1px); }
+
+.category{ backdrop-filter: blur(4px); }
+
+/* بريق خفيف للحالات */
+.pill.ok      { box-shadow: 0 0 0 2px rgba(99,230,165,.12) inset; }
+.pill.soon    { box-shadow: 0 0 0 2px rgba(255,165,0,.12) inset; }
+.pill.expired { box-shadow: 0 0 0 2px rgba(255,107,107,.12) inset; }
+
+/* تحريك بسيط لنقطة الحالة داخل الـ pill */
+.pill .dot{ display:inline-block; transform: scale(1); transition: transform .2s ease; }
+.pill:hover .dot{ transform: scale(1.2); }
+--bg:#0b0f14;--card:#0f151d;--muted:#92a0b3;--text:#e8eef6;--brand:#7a6bff;--accent:#ff6b6b;--ok:#63e6a5;--border:1px solid rgba(255,255,255,.08)}
     body{margin:0;background:#0a0f14;color:var(--text);font-family:"Cairo",sans-serif}
     .container{width:min(1180px,93%);margin:auto}
     /* Intro */
@@ -255,21 +273,26 @@
       totalCountEl.textContent = ALL.length || 0;
       render();
     }
-    function render(){
-      const q=state.q.trim().toLowerCase();
-      const list=ALL
-        .filter(x=>(!q || x.name?.toLowerCase().includes(q)||x.nid?.includes(q)) &&
-          (state.cat==='all'
-            ? true
-            : state.cat==='expired'
-              ? isExpired(x.expiry)
-              : state.cat==='soon'
-                ? isSoon(x.expiry)
-                : x.category===state.cat))
-        .sort((a,b)=>new Date(a.expiry)-new Date(b.expiry));
-      cards.innerHTML=list.map(cardHTML).join('');
-      bindRowActions(list);
-    }
+   function render(){
+  const q = state.q.trim().toLowerCase();
+  const list = ALL
+    .filter(x => (!q || x.name?.toLowerCase().includes(q) || x.nid?.includes(q)) &&
+      (state.cat === 'all'
+        ? true
+        : state.cat === 'expired'
+          ? isExpired(x.expiry)
+          : state.cat === 'soon'
+            ? isSoon(x.expiry)
+            : x.category === state.cat))
+    .sort((a,b)=> new Date(a.expiry) - new Date(b.expiry));
+
+  // ✅ حدّث الإجمالي حسب الفلترة
+  totalCountEl.textContent = list.length || 0;
+
+  cards.innerHTML = list.map(cardHTML).join('');
+  bindRowActions(list);
+}
+
 
     function openForm(id){
       form.reset(); photoPreview.src=''; window.pastedImage=null; editId.value='';
